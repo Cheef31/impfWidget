@@ -1,12 +1,14 @@
 /* 
 Impftermin Widget
-v 1.3.1 EOL des Projektes
+v 1.3.2 (Weiterführung des Projektes)
 
 This Scriptable Widget will show you if there are any "Vermittlungscode" for vaccination appointments available.
 The data is pulled from the impfterminservice.de api, which is neither publicly available nor documented.
 Therefore everything may break.
 
-The newest version, issues, etc. of this widget can be found here: https://github.com/not-a-feature/impfWidget
+The newest version, issues, etc. of this widget can be found here: https://github.com/Cheef31/impfWidget
+
+This is forked from: https://github.com/not-a-feature/impfWidget
 A gist version is also available: https://gist.github.com/not-a-feature/4e6dbbd9eb3bd927e50cae347b7e0486/
 
 The framework/skeleton of this script was created by marco79cgn for the toiletpaper-widget
@@ -51,13 +53,13 @@ Go to https://github.com/not-a-feature/impfWidget/blob/main/LICENSE to see the f
 
 // Replace this with the data of you local center
 const CENTER = {
-    "Zentrumsname": "Paul Horn Arena",
-    "PLZ": "72072",
-    "Ort": "Tübingen",
-    "Bundesland": "Baden-Württemberg",
-    "URL": "https://003-iz.impfterminservice.de/",
-    "Adresse": "Europastraße  50"
- }
+         "Zentrumsname": "KIZ Böblingen",
+         "PLZ": "71065",
+         "Ort": "Sindelfingen ",
+         "Bundesland": "Baden-Württemberg",
+         "URL": "https://229-iz.impfterminservice.de/",
+         "Adresse": "Mahdentalstraße 116"
+      }
 
 // adjust to your desired level
 const NOTIFICATION_LEVEL = 1
@@ -224,15 +226,16 @@ async function createNotification() {
 
 
 /* 
-Fetches open appointments
+Fetches open appointments without specific vaccine
 Returns object e.g:
-   {"BioNTech": true, "Monderna": false}
+   {"termineVorhanden":false,"vorhandeneLeistungsmerkmale":[]}
 or {"Error": "Error message"}
 */
 async function fetchOpenAppointments() {
-    let url = CENTER["URL"]  + "rest/suche/termincheck?plz=" + CENTER["PLZ"] + "&leistungsmerkmale=" 
+    let url = CENTER["URL"]  + "rest/suche/termincheck?plz=" + CENTER["PLZ"] + "&leistungsmerkmale=L920,L921,L922,L923" 
     let result = {}
-    console.log(VACCINES)
+    /* Doesn't work
+	console.log(VACCINES)
     // Case if all vaccines are displayed as one
     if (DISPLAY_VACCINES_AS_ONE) {
         let urlAppendix = []
@@ -245,9 +248,11 @@ async function fetchOpenAppointments() {
             return {"error": "No vaccines selected."}
         }
         url = url + urlAppendix.join(",")
+		*/
         let req = new Request(url)
         let body = await req.loadString()
-
+		console.log('Body: ' + body)
+		
         for (var i = 0; i < VACCINES.length; i++) {
             if (body == '{"termineVorhanden":false}') {
                 result[VACCINES[i]["name"]] = false
